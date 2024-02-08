@@ -93,6 +93,7 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    use nudging,             only: nudging_readnl
 #if ( defined SIMPLE )
    use frierson_cam,        only: frierson_readnl
+   use held_suarez_cam,     only: held_suarez_readnl
 #endif
 
    use dyn_comp,            only: dyn_readnl
@@ -201,6 +202,7 @@ subroutine read_namelist(nlfilename, single_column, scmlat, scmlon)
    call nudging_readnl(nlfilename)
 #if ( defined SIMPLE )
    call frierson_readnl(nlfilename)
+   call held_suarez_readnl(nlfilename)
 #endif
 
    call dyn_readnl(nlfilename)

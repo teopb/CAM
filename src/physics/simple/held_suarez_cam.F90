@@ -17,23 +17,74 @@ module held_suarez_cam
   private
   save
 
-  public :: held_suarez_init, held_suarez_tend
+  public :: held_suarez_init, held_suarez_tend, held_suarez_readnl
 
-  real(r8), parameter :: efoldf  =  1._r8  ! efolding time for wind dissipation
-  real(r8), parameter :: efolda  = 40._r8  ! efolding time for T dissipation
-  real(r8), parameter :: efolds  =  4._r8  ! efolding time for T dissipation
-  real(r8), parameter :: sigmab  =  0.7_r8 ! threshold sigma level
-  real(r8), parameter :: t00     = 200._r8 ! minimum reference temperature
-  real(r8), parameter :: kf      = 1._r8/(86400._r8*efoldf) ! 1./efolding_time for wind dissipation
-
-  real(r8), parameter :: onemsig = 1._r8 - sigmab ! 1. - sigma_reference
-
-  real(r8), parameter :: ka      = 1._r8/(86400._r8 * efolda) ! 1./efolding_time for temperature diss.
-  real(r8), parameter :: ks      = 1._r8/(86400._r8 * efolds)
+  real(r8) :: held_suarez_efoldf  ! efolding time for wind dissipation
+  real(r8) :: held_suarez_efolda  ! efolding time for T dissipation
+  real(r8) :: held_suarez_efolds  ! efolding time for T dissipation
+  real(r8) :: held_suarez_sigmab  ! threshold sigma level
+  real(r8) :: held_suarez_t00    ! minimum reference temperature
+  real(r8) :: held_suarez_delta_T_y  ! equilibrium temperature parameter for latitude
+  real(r8) :: held_suarez_delta_theta_z  ! equilibrium temperature parameter for veritical level
 
 !=======================================================================
 contains
 !=======================================================================
+
+  subroutine held_suarez_readnl(nlfile)
+    !
+    ! held_suarez_readnl: Read in parameters controlling Held-Suarez parameterizations.
+    !=====================================================================
+    use namelist_utils,only: find_group_name
+    use units         ,only: getunit, freeunit
+    !
+    ! Passed Variables
+    !------------------
+    character(len=*),intent(in):: nlfile
+    !
+    ! Local Values
+    !--------------
+    integer:: ierr,unitn
+
+    character(len=*), parameter :: sub = 'held_suarez_readnl'
+
+    namelist /held_suarez_nl/ held_suarez_efoldf, held_suarez_efolda        , held_suarez_efolds   , &
+                              held_suarez_sigmab      , held_suarez_t00    , held_suarez_delta_T_y , &
+                              held_suarez_delta_theta_z
+
+    ! Read in namelist values
+    !-------------------------
+    if(masterproc) then
+        unitn = getunit()
+        open(unitn,file=trim(nlfile),status='old')
+        call find_group_name(unitn,'held_suarez_nl',status=ierr)
+        if(ierr == 0) then
+        read(unitn,held_suarez_nl,iostat=ierr)
+        if(ierr /= 0) then
+            call endrun(sub//': ERROR reading namelist')
+        endif
+        endif
+        close(unitn)
+        call freeunit(unitn)
+    endif
+
+
+    call mpi_bcast(held_suarez_efoldf    , 1, mpi_real8 , mstrid, mpicom, ierr)
+    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_efoldf")
+    call mpi_bcast(held_suarez_efolda  , 1, mpi_real8 , mstrid, mpicom, ierr)
+    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_efolda")
+    call mpi_bcast(held_suarez_efolds  , 1, mpi_real8 , mstrid, mpicom, ierr)
+    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_efolds")
+    call mpi_bcast(held_suarez_sigmab   , 1, mpi_real8 , mstrid, mpicom, ierr)
+    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_sigmab")
+    call mpi_bcast(held_suarez_t00        , 1, mpi_real8 , mstrid, mpicom, ierr)
+    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_t00")
+    call mpi_bcast(held_suarez_delta_T_y      , 1, mpi_real8 , mstrid, mpicom, ierr)
+    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_delta_T_y")
+    call mpi_bcast(held_suarez_delta_theta_z      , 1, mpi_real8 , mstrid, mpicom, ierr)
+    if (ierr /= 0) call endrun(sub//": FATAL: mpi_bcast: held_suarez_delta_theta_z")
+
+  end subroutine held_suarez_readnl
 
   subroutine held_suarez_init()
     use physics_buffer,     only: physics_buffer_desc
@@ -46,13 +97,13 @@ contains
     integer            :: errflg
 
     ! Set model constant values
-    call held_suarez_1994_init(psurf_ref, errmsg, errflg)
+    call held_suarez_1994_init(psurf_ref, errmsg, errflg, held_suarez_efoldf, held_suarez_sigmab, held_suarez_efolda, held_suarez_efolds)
 
     ! This field is added by radiation when full physics is used
     call addfld('QRS', (/ 'lev' /), 'A', 'K/s', &
          'Temperature tendency associated with the relaxation toward the equilibrium temperature profile')
     call add_default('QRS', 1, ' ')
- end subroutine held_suarez_init
+  end subroutine held_suarez_init
 
   subroutine held_suarez_tend(state, ptend, ztodt)
     use air_composition,    only: cappav, cpairv
@@ -104,7 +155,7 @@ contains
     ! initialize individual parameterization tendencies
     call physics_ptend_init(ptend, state%psetcols, 'held_suarez', ls=.true., lu=.true., lv=.true.)
 
-    call held_suarez_1994_run(pver, ncol, pref_mid_norm, clat, cappav(1:ncol,:,lchnk), &
+    call held_suarez_1994_run(held_suarez_sigmab, held_suarez_t00, held_suarez_delta_T_y, held_suarez_delta_theta_z, pver, ncol, pref_mid_norm, clat, cappav(1:ncol,:,lchnk), &
                               cpairv(1:ncol,:,lchnk), state%pmid(1:ncol,:),            &
                               state%u(1:ncol,:), state%v(1:ncol,:), state%t(1:ncol,:), &
                               ptend%u(1:ncol,:), ptend%v(1:ncol,:), ptend%s(1:ncol,:), &

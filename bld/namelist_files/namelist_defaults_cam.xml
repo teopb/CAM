@@ -373,6 +373,16 @@
 <analytic_ic_type phys="tj2016"     > moist_baroclinic_wave_dcmip2016 </analytic_ic_type>
 <analytic_ic_type phys="grayrad"    > moist_baroclinic_wave_dcmip2016 </analytic_ic_type>
 
+<!-- Held-Suarez -->
+
+<held_suarez_efoldf          phys="held_suarez"   > 1.0d0     </held_suarez_efoldf>
+<held_suarez_efolda          phys="held_suarez"   > 40.0d0    </held_suarez_efolda>
+<held_suarez_efolds          phys="held_suarez"   > 4.0d0     </held_suarez_efolds>
+<held_suarez_sigmab          phys="held_suarez"   > 0.7d0     </held_suarez_sigmab>
+<held_suarez_t00             phys="held_suarez"   > 200.0d0   </held_suarez_t00>
+<held_suarez_delta_T_y       phys="held_suarez"   > 60.0d0    </held_suarez_delta_T_y>
+<held_suarez_delta_theta_z   phys="held_suarez"   > 10.0d0    </held_suarez_delta_theta_z>
+
 <!-- Frierson Gray Radiation -->
 
 <frierson_Wind_min   phys="grayrad"   > 1.0d-5    </frierson_Wind_min>

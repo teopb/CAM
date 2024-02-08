@@ -54,6 +54,49 @@
           that have only a small number of allowed values.
                                                                         -->
 
+<!-- Held-Suarez Simple Physics Parameters -->
+<entry id="held_suarez_efoldf" type="real" category="held-suarez"
+       group="held_suarez_nl" valid_values="" >
+       Efolding time for wind dissipation.
+       Default: 1.0d0
+       </entry>
+
+<entry id="held_suarez_efolda" type="real" category="held-suarez"
+       group="held_suarez_nl" valid_values="" >
+       Efolding time for temperature dissipation.
+       Default: 40.0d0
+       </entry>
+
+<entry id="held_suarez_efolds" type="real" category="held-suarez"
+       group="held_suarez_nl" valid_values="" >
+       Efolding time for temperature dissipation.
+       Default: 4.0d0
+       </entry>
+
+<entry id="held_suarez_sigmab" type="real" category="held-suarez"
+       group="held_suarez_nl" valid_values="" >
+       Threshold sigma level.
+       Default: 0.7d0
+       </entry>
+
+<entry id="held_suarez_t00" type="real" category="held-suarez"
+       group="held_suarez_nl" valid_values="" >
+       Minimum reference temperature.
+       Default: 200.0d0
+       </entry>
+
+<entry id="held_suarez_delta_T_y" type="real" category="held-suarez"
+       group="held_suarez_nl" valid_values="" >
+       Equilibrium temperature parameter for latitude.
+       Default: 1.0d0
+       </entry>
+
+<entry id="held_suarez_delta_theta_z" type="real" category="held-suarez"
+       group="held_suarez_nl" valid_values="" >
+       Equilibrium temperature parameter for veritical level.
+       Default: 10.0d0
+       </entry>
+
 <!-- Frierson Simple Physics Parameters -->
 
 <entry id="frierson_Wind_min" type="real" category="frierson"
