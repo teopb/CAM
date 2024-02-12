@@ -55,17 +55,17 @@ contains
     ! Read in namelist values
     !-------------------------
     if(masterproc) then
-        unitn = getunit()
-        open(unitn,file=trim(nlfile),status='old')
-        call find_group_name(unitn,'held_suarez_nl',status=ierr)
-        if(ierr == 0) then
+      unitn = getunit()
+      open(unitn,file=trim(nlfile),status='old')
+      call find_group_name(unitn,'held_suarez_nl',status=ierr)
+      if(ierr == 0) then
         read(unitn,held_suarez_nl,iostat=ierr)
         if(ierr /= 0) then
-            call endrun(sub//': ERROR reading namelist')
+          call endrun(sub//': ERROR reading namelist')
         endif
-        endif
-        close(unitn)
-        call freeunit(unitn)
+      endif
+      close(unitn)
+      call freeunit(unitn)
     endif
 
 
