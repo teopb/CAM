@@ -501,7 +501,7 @@ if ($phys eq 'grayrad' ) {
     add_default($nl, 'frierson_z0');
 }
 
-if ($phys eq 'held-suarez' ) {
+if ($phys eq 'held_suarez' ) {
     add_default($nl, 'held_suarez_efoldf');
     add_default($nl, 'held_suarez_efolda');
     add_default($nl, 'held_suarez_efolds');
