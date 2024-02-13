@@ -14,6 +14,7 @@ module held_suarez_cam
   use ppgrid,       only: pcols, pver
   use spmd_utils,     only: masterproc
   use spmd_utils,     only: mpicom, mstrid=>masterprocid, mpi_real8
+  use cam_abortutils, only: endrun
 
   implicit none
   private
