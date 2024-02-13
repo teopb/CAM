@@ -12,6 +12,8 @@ module held_suarez_cam
 
   use shr_kind_mod, only: r8 => shr_kind_r8
   use ppgrid,       only: pcols, pver
+  use spmd_utils,     only: masterproc
+  use spmd_utils,     only: mpicom, mstrid=>masterprocid, mpi_real8
 
   implicit none
   private
